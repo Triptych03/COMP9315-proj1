@@ -10,40 +10,43 @@
 --
 ---------------------------------------------------------------------------
 
-CREATE FUNCTION complex_in(cstring)
-   RETURNS complex
-   AS '_OBJWD_/complex'
+-- the input function 'email_in' takes the textual representation and
+-- converts it into the internal representation.
+
+CREATE FUNCTION email_in(cstring)
+   RETURNS email
+   AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the output function 'complex_out' takes the internal representation and
+-- the output function 'email_out' takes the internal representation and
 -- converts it into the textual representation.
 
-CREATE FUNCTION complex_out(complex)
+CREATE FUNCTION email_out(email)
    RETURNS cstring
-   AS '_OBJWD_/complex'
+   AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the binary input function 'complex_recv' takes a StringInfo buffer
+-- the binary input function 'email_recv' takes a StringInfo buffer
 -- and turns its contents into the internal representation.
 
-CREATE FUNCTION complex_recv(internal)
-   RETURNS complex
-   AS '_OBJWD_/complex'
+CREATE FUNCTION email_recv(internal)
+   RETURNS email
+   AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the binary output function 'complex_send' takes the internal representation
+-- the binary output function 'email_send' takes the internal representation
 -- and converts it into a (hopefully) platform-independent bytea string.
 
-CREATE FUNCTION complex_send(complex)
+CREATE FUNCTION email_send(email)
    RETURNS bytea
-   AS '_OBJWD_/complex'
+   AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
 
 -- now, we can create the type. The internallength specifies the size of the
 -- memory block required to hold the type (we need two 8-byte doubles).
 
-CREATE TYPE complex (
+CREATE TYPE email (
    internallength = 16,
    input = complex_in,
    output = complex_out,
