@@ -109,44 +109,84 @@ CREATE FUNCTION emails_notdeq(email, email) RETURNS bool
 
 
 CREATE OPERATOR < (
-   leftarg = emails, rightarg = emails, procedure = emails_lt,
-   commutator = > , negator = >= ,
-   restrict = scalarltsel, join = scalarltjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_lt,
+   commutator = > ,
+   negator = >= ,
+   restrict = scalarltsel,
+   join = scalarltjoinsel
 );
 CREATE OPERATOR <= (
-   leftarg = emails, rightarg = emails, procedure = emails_le,
-   commutator = >= , negator = > ,
-   restrict = scalarltsel, join = scalarltjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_le,
+   commutator = >= ,
+   negator = > ,
+   restrict = scalarltsel,
+   join = scalarltjoinsel
 );
 CREATE OPERATOR = (
-   leftarg = emails, rightarg = emails, procedure = emails_eq,
-   commutator = = , negator = <>,
-   restrict = eqsel, join = eqjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_eq,
+   commutator = = ,
+   negator = <>,
+   restrict = eqsel,
+   join = eqjoinsel,
+   HASHES,
+   MERGES,
 );
 CREATE OPERATOR <> (
-   leftarg = emails, rightarg = emails, procedure = emails_noteq,
-   commutator = <> , negator = =,
-   restrict = eqsel, join = eqjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_noteq,
+   commutator = <> ,
+   negator = =,
+   restrict = neqsel,
+   join = neqjoinsel,
+   HASHES,
+   MERGES,
 );
 CREATE OPERATOR >= (
-   leftarg = emails, rightarg = emails, procedure = emails_ge,
-   commutator = <= , negator = < ,
-   restrict = scalargtsel, join = scalargtjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_ge,
+   commutator = <= ,
+   negator = < ,
+   restrict = scalargtsel,
+   join = scalargtjoinsel
 );
 CREATE OPERATOR > (
-   leftarg = emails, rightarg = emails, procedure = emails_gt,
-   commutator = < , negator = <= ,
-   restrict = scalargtsel, join = scalargtjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_gt,
+   commutator = < ,
+   negator = <= ,
+   restrict = scalargtsel,
+   join = scalargtjoinsel
 );
 CREATE OPERATOR ~ (
-   leftarg = emails, rightarg = emails, procedure = emails_deq,
-   commutator = ~ , negator = !~ ,
-   restrict = scalargtsel, join = scalargtjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_deq,
+   commutator = ~ ,
+   negator = !~ ,
+   restrict = eqsel,
+   join = eqjoinsel,
+   HASHES,
+   MERGES
 );
 CREATE OPERATOR !~ (
-   leftarg = emails, rightarg = emails, procedure = emails_notdeq,
-   commutator = !~ , negator = ~ ,
-   restrict = scalargtsel, join = scalargtjoinsel
+   leftarg = emails,
+   rightarg = emails,
+   procedure = emails_notdeq,
+   commutator = !~ ,
+   negator = ~ ,
+   restrict = neqsel,
+   join = neqjoinsel,
+   HASHES,
+   MERGES
 );
 
 
@@ -158,10 +198,10 @@ CREATE OPERATOR CLASS email_ops
         OPERATOR        2       <= ,
         OPERATOR        3       = ,
         OPERATOR        5       <> ,
-        OPERATOR        5       >= ,
         OPERATOR        6       > ,
+        OPERATOR        5       >= ,
         OPERATOR        7       ~ ,
-        OPERATOR        8       !~ ,
+        OPERATOR        8       !~ ;
 
 
 -- btree definitions
