@@ -164,15 +164,19 @@ CREATE OPERATOR !~ (
    MERGES
 );
 
+
 -- create the support function
 
 CREATE FUNCTION email_cmp(email, email) RETURNS int4
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
 
+CREATE FUNCTION email_hval(email) RETURNS int4
+   AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
+
 
 -- make the operator class
 
-CREATE OPERATOR CLASS email_ops
+CREATE OPERATOR CLASS email_btree_ops
     DEFAULT FOR TYPE email USING btree AS
         OPERATOR        1       < ,
         OPERATOR        2       <= ,
@@ -183,6 +187,11 @@ CREATE OPERATOR CLASS email_ops
         -- OPERATOR        7       ~ ,
         -- OPERATOR        8       !~ ;
 	FUNCTION        1       email_cmp(email, email);
+
+CREATE OPERATOR CLASS email_hash_ops
+    DEFAULT FOR TYPE email USING hash AS
+        OPERATOR        1       = ,
+	FUNCTION        1       email_hval(email);
 
 
 -- Test suit
@@ -226,8 +235,8 @@ SELECT * from UserSessions where a ~ 'abc@test.com';
 SELECT * from UserSessions where a !~ 'abc@test.com';
 
 
--- clean up the example
-DROP TABLE test_email;
+-- clean up the test
+DROP TABLE UserSessions;
 DROP TYPE email CASCADE;
 
 
