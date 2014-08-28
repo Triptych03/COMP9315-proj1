@@ -44,7 +44,7 @@ Datum       email_notdeq(PG_FUNCTION_ARGS);
 PG_FUNCTION_INFO_V1(email_in);
 
 Datum
-complex_in(PG_FUNCTION_ARGS)
+email_in(PG_FUNCTION_ARGS)
 {
 	char	   *str = PG_GETARG_CSTRING(0);
 	char		local,
@@ -72,7 +72,7 @@ email_out(PG_FUNCTION_ARGS)
 	char	 *result;
 
 	result = (char *) palloc(100);
-	snprintf(result, 100, "(%g, @, %g)", email->local, email->domain);
+	snprintf(result, 100, "(%c, @, %c)", email->local, email->domain);
 	PG_RETURN_CSTRING(result);
 }
 
