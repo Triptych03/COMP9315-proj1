@@ -55,33 +55,8 @@ CREATE TYPE email (
 );
 
 
--- Test suit
-
-CREATE TABLE UserSessions (
-    username EmailAddress,
-    loggedIn timeStamp,
-    loggedOut timeStamp
-);
-
-insert into Users(username,loggedIn,loggedOut) values
-('jas@cse.unsw.edu.au','2012-07-01 15:45:55','2012-07-01 15:51:20'),
-('jas@cse.unsw.EDU.AU','2012-07-01 15:50:30','2012-07-01 15:53:15'),
-('z9987654@unsw.edu.au','2012-07-01 15:51:10','2012-07-01 16:01:05'),
-('m.mouse@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
-('a-user@fast-money.com','2012-07-01 15:52:25','2012-07-01 16:10:15');
-
-create index on UserSessions using hash (username);
-
-select a.username, a.loggedIn, b.loggedIn
-from   UserSessions a, UserSessions b
-where  a.uname = b.uname and a.loggedIn <> b.loggedIn;
-
-select path,count(*)
-from   Users
-group  by path;
-
-
 -- define the required operators
+
 CREATE FUNCTION email_lt(email, email) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
@@ -192,6 +167,7 @@ CREATE OPERATOR !~ (
 
 
 -- make the operator class
+
 CREATE OPERATOR CLASS email_ops
     DEFAULT FOR TYPE email USING btree AS
         OPERATOR        1       < ,
@@ -204,9 +180,35 @@ CREATE OPERATOR CLASS email_ops
         OPERATOR        8       !~ ;
 
 
+-- Test suit
+
+CREATE TABLE UserSessions (
+    username EmailAddress,
+    loggedIn timeStamp,
+    loggedOut timeStamp
+);
+
+insert into Users(username,loggedIn,loggedOut) values
+('jas@cse.unsw.edu.au','2012-07-01 15:45:55','2012-07-01 15:51:20'),
+('jas@cse.unsw.EDU.AU','2012-07-01 15:50:30','2012-07-01 15:53:15'),
+('z9987654@unsw.edu.au','2012-07-01 15:51:10','2012-07-01 16:01:05'),
+('m.mouse@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
+('a-user@fast-money.com','2012-07-01 15:52:25','2012-07-01 16:10:15');
+
+create index on UserSessions using hash (username);
+
+select a.username, a.loggedIn, b.loggedIn
+from   UserSessions a, UserSessions b
+where  a.uname = b.uname and a.loggedIn <> b.loggedIn;
+
+select path,count(*)
+from   Users
+group  by path;
+
+INSERT INTO test_email VALUES ('abc@test.com','2012-07-01 15:45:57','2012-07-01 15:51:28');
+INSERT INTO test_email VALUES ('def@test.com','2012-07-01 15:45:56','2012-07-01 15:51:27');
+
 -- btree definitions
-INSERT INTO test_email VALUES ('abc@test.com');
-INSERT INTO test_email VALUES ('abc@test.com');
 
 CREATE INDEX test_email_ind ON test_email
    USING btree(a email_ops);
