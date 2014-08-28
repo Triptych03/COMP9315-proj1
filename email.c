@@ -31,11 +31,11 @@ Datum	email_send(PG_FUNCTION_ARGS);
 Datum	email_lt(PG_FUNCTION_ARGS);
 Datum	email_le(PG_FUNCTION_ARGS);
 Datum	email_eq(PG_FUNCTION_ARGS);
-Datum	email_noteq(PG_FUNCTION_ARGS);
+Datum	email_neq(PG_FUNCTION_ARGS);
 Datum	email_gt(PG_FUNCTION_ARGS);
 Datum	email_ge(PG_FUNCTION_ARGS);
 Datum	email_deq(PG_FUNCTION_ARGS);
-Datum   email_notdeq(PG_FUNCTION_ARGS);
+Datum   email_ndeq(PG_FUNCTION_ARGS);
 
 
 //*****************************************************************************
@@ -44,12 +44,10 @@ Datum   email_notdeq(PG_FUNCTION_ARGS);
 
 PG_FUNCTION_INFO_V1(email_in);
 
-Datum
-email_in(PG_FUNCTION_ARGS)
+Datum email_in(PG_FUNCTION_ARGS)
 {
 	char	   *str = PG_GETARG_CSTRING(0);
-	char		local,
-				domain;
+	char		local, domain;
 	Email      *result;
 
 	if (sscanf(str, "%s @ %s", &local, &domain) != 2)
@@ -66,8 +64,7 @@ email_in(PG_FUNCTION_ARGS)
 
 PG_FUNCTION_INFO_V1(email_out);
 
-Datum
-email_out(PG_FUNCTION_ARGS)
+Datum email_out(PG_FUNCTION_ARGS)
 {
 	Email    *email = (Email *) PG_GETARG_POINTER(0);
 	char	 *result;
@@ -83,8 +80,7 @@ email_out(PG_FUNCTION_ARGS)
 
 PG_FUNCTION_INFO_V1(email_recv);
 
-Datum
-email_recv(PG_FUNCTION_ARGS)
+Datum email_recv(PG_FUNCTION_ARGS)
 {
 	StringInfo	buf = (StringInfo) PG_GETARG_POINTER(0);
 	Email    *result;
@@ -97,8 +93,7 @@ email_recv(PG_FUNCTION_ARGS)
 
 PG_FUNCTION_INFO_V1(email_send);
 
-Datum
-email_send(PG_FUNCTION_ARGS)
+Datum email_send(PG_FUNCTION_ARGS)
 {
 	Email    *email = (Email *) PG_GETARG_POINTER(0);
 	StringInfoData buf;
@@ -112,86 +107,85 @@ email_send(PG_FUNCTION_ARGS)
 //*****************************************************************************
 //* Operator class for defining B-tree index
 //*****************************************************************************
-/**
-#define Mag(c)	((c)->x*(c)->x + (c)->y*(c)->y)
-
-static int
-complex_abs_cmp_internal(Complex * a, Complex * b)
-{
-	double		amag = Mag(a),
-				bmag = Mag(b);
-
-	if (amag < bmag)
-		return -1;
-	if (amag > bmag)
-		return 1;
-	return 0;
-}
-
 
 PG_FUNCTION_INFO_V1(complex_abs_lt);
 
-Datum
-complex_abs_lt(PG_FUNCTION_ARGS)
+Datum email_lt(PG_FUNCTION_ARGS)
 {
-	Complex    *a = (Complex *) PG_GETARG_POINTER(0);
-	Complex    *b = (Complex *) PG_GETARG_POINTER(1);
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(complex_abs_cmp_internal(a, b) < 0);
+	PG_RETURN_BOOL(strcmp(a, b) < 0);
 }
 
-PG_FUNCTION_INFO_V1(complex_abs_le);
+PG_FUNCTION_INFO_V1(email_le);
 
-Datum
-complex_abs_le(PG_FUNCTION_ARGS)
+Datum email_le(PG_FUNCTION_ARGS)
 {
-	Complex    *a = (Complex *) PG_GETARG_POINTER(0);
-	Complex    *b = (Complex *) PG_GETARG_POINTER(1);
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(complex_abs_cmp_internal(a, b) <= 0);
+	PG_RETURN_BOOL(strcmp(a, b) <= 0);
 }
 
-PG_FUNCTION_INFO_V1(complex_abs_eq);
+PG_FUNCTION_INFO_V1(email_eq);
 
-Datum
-complex_abs_eq(PG_FUNCTION_ARGS)
+Datum email_eq(PG_FUNCTION_ARGS)
 {
-	Complex    *a = (Complex *) PG_GETARG_POINTER(0);
-	Complex    *b = (Complex *) PG_GETARG_POINTER(1);
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(complex_abs_cmp_internal(a, b) == 0);
+	PG_RETURN_BOOL(strcmp(a, b) == 0);
 }
 
-PG_FUNCTION_INFO_V1(complex_abs_ge);
+PG_FUNCTION_INFO_V1(email_neq);
 
-Datum
-complex_abs_ge(PG_FUNCTION_ARGS)
+Datum email_eq(PG_FUNCTION_ARGS)
 {
-	Complex    *a = (Complex *) PG_GETARG_POINTER(0);
-	Complex    *b = (Complex *) PG_GETARG_POINTER(1);
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(complex_abs_cmp_internal(a, b) >= 0);
+	PG_RETURN_BOOL(strcmp(a, b) != 0);
 }
 
-PG_FUNCTION_INFO_V1(complex_abs_gt);
+PG_FUNCTION_INFO_V1(email_ge);
 
-Datum
-complex_abs_gt(PG_FUNCTION_ARGS)
+Datum email_ge(PG_FUNCTION_ARGS)
 {
-	Complex    *a = (Complex *) PG_GETARG_POINTER(0);
-	Complex    *b = (Complex *) PG_GETARG_POINTER(1);
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(complex_abs_cmp_internal(a, b) > 0);
+	PG_RETURN_BOOL(strcmp(a, b) >= 0);
 }
 
-PG_FUNCTION_INFO_V1(complex_abs_cmp);
+PG_FUNCTION_INFO_V1(emails_gt);
 
-Datum
-complex_abs_cmp(PG_FUNCTION_ARGS)
+Datum email_gt(PG_FUNCTION_ARGS)
 {
-	Complex    *a = (Complex *) PG_GETARG_POINTER(0);
-	Complex    *b = (Complex *) PG_GETARG_POINTER(1);
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_INT32(complex_abs_cmp_internal(a, b));
+	PG_RETURN_BOOL(strcmp(a, b) > 0);
 }
-**/
+
+PG_FUNCTION_INFO_V1(email_cmp);
+
+Datum email_deq(PG_FUNCTION_ARGS)
+{
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
+
+	PG_RETURN_BOOL(strcmp(a->domain, b->domain) == 0);
+}
+
+PG_FUNCTION_INFO_V1(email_cmp);
+
+Datum email_ndeq(PG_FUNCTION_ARGS)
+{
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
+
+	PG_RETURN_BOOL(strcmp(a->domain, b->domain) != 0);
+}
+
+
