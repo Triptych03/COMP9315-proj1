@@ -66,7 +66,7 @@ CREATE FUNCTION email_le(email, email) RETURNS bool
 CREATE FUNCTION email_eq(email, email) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_noteq(email, email) RETURNS bool
+CREATE FUNCTION email_neq(email, email) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
 CREATE FUNCTION email_gt(email, email) RETURNS bool
@@ -78,7 +78,7 @@ CREATE FUNCTION emails_ge(email, email) RETURNS bool
 CREATE FUNCTION emails_deq(email, email) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION emails_notdeq(email, email) RETURNS bool
+CREATE FUNCTION emails_ndeq(email, email) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
 
 
@@ -115,7 +115,7 @@ CREATE OPERATOR = (
 CREATE OPERATOR <> (
    leftarg = emails,
    rightarg = emails,
-   procedure = emails_noteq,
+   procedure = emails_neq,
    commutator = <> ,
    negator = =,
    restrict = neqsel,
@@ -155,7 +155,7 @@ CREATE OPERATOR ~ (
 CREATE OPERATOR !~ (
    leftarg = emails,
    rightarg = emails,
-   procedure = emails_notdeq,
+   procedure = emails_ndeq,
    commutator = !~ ,
    negator = ~ ,
    restrict = neqsel,
