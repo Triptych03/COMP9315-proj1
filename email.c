@@ -35,6 +35,8 @@ Datum	email_gt(PG_FUNCTION_ARGS);
 Datum	email_ge(PG_FUNCTION_ARGS);
 Datum	email_deq(PG_FUNCTION_ARGS);
 Datum   email_ndeq(PG_FUNCTION_ARGS);
+Datum	email_cmp(PG_FUNCTION_ARGS);
+Datum   email_hval(PG_FUNCTION_ARGS);
 
 
 //*****************************************************************************
@@ -50,10 +52,9 @@ Datum email_in(PG_FUNCTION_ARGS)
 	Email *result;
 
 	if (sscanf(str, "%c @ %c", &local, &domain) != 2)
-		ereport(ERROR,
-				(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
-				 errmsg("invalid input syntax for Email Address: \"%s\"",
-						str)));
+		ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+			errmsg("invalid input syntax for Email Address: \"%s\"",
+				str)));
 
 	result = (Email *) palloc(sizeof(Email));
 	result->local = local;
@@ -194,6 +195,21 @@ Datum email_ndeq(PG_FUNCTION_ARGS)
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
 	PG_RETURN_BOOL(strcmp(&a->domain, &b->domain) != 0);
+}
+
+Datum email_cmp(PG_FUNCTION_ARGS)
+{
+	Email    *a = (Email *) PG_GETARG_POINTER(0);
+	Email    *b = (Email *) PG_GETARG_POINTER(1);
+
+	PG_RETURN_INT32(email_cmp_internal(a, b));
+}
+
+Datum email_hval(PG_FUNCTION_ARGS)
+{
+	//Email    *a = (Email *) PG_GETARG_POINTER(0);
+
+	PG_RETURN_INT32(1);
 }
 
 
