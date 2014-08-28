@@ -50,7 +50,7 @@ Datum email_in(PG_FUNCTION_ARGS)
 	char		local, domain;
 	Email      *result;
 
-	if (sscanf(str, "%s @ %s", &local, &domain) != 2)
+	if (sscanf(str, "%c @ %c", &local, &domain) != 2)
 		ereport(ERROR,
 				(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
 				 errmsg("invalid input syntax for Email Address: \"%s\"",
@@ -70,7 +70,7 @@ Datum email_out(PG_FUNCTION_ARGS)
 	char	 *result;
 
 	result = (char *) palloc(100);
-	snprintf(result, 100, "%s @ %s", email->local, email->domain);
+	snprintf(result, 100, "%c @ %c", email->local, email->domain);
 	PG_RETURN_CSTRING(result);
 }
 
@@ -108,14 +108,14 @@ Datum email_send(PG_FUNCTION_ARGS)
 //* Operator class for defining B-tree index
 //*****************************************************************************
 
-PG_FUNCTION_INFO_V1(complex_abs_lt);
+PG_FUNCTION_INFO_V1(email_lt);
 
 Datum email_lt(PG_FUNCTION_ARGS)
 {
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a, b) < 0);
+	PG_RETURN_BOOL(email_cmp_internal(a, b) < 0);
 }
 
 PG_FUNCTION_INFO_V1(email_le);
@@ -125,7 +125,7 @@ Datum email_le(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a, b) <= 0);
+	PG_RETURN_BOOL(email_cmp_internal(a, b) <= 0);
 }
 
 PG_FUNCTION_INFO_V1(email_eq);
@@ -135,7 +135,7 @@ Datum email_eq(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a, b) == 0);
+	PG_RETURN_BOOL(email_cmp_internal(a, b) == 0);
 }
 
 PG_FUNCTION_INFO_V1(email_neq);
@@ -145,7 +145,7 @@ Datum email_eq(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a, b) != 0);
+	PG_RETURN_BOOL(email_cmp_internal(a, b) != 0);
 }
 
 PG_FUNCTION_INFO_V1(email_ge);
@@ -155,7 +155,7 @@ Datum email_ge(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a, b) >= 0);
+	PG_RETURN_BOOL(email_cmp_internal((a, b) >= 0);
 }
 
 PG_FUNCTION_INFO_V1(emails_gt);
@@ -165,7 +165,7 @@ Datum email_gt(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a, b) > 0);
+	PG_RETURN_BOOL(email_cmp_internal(a, b) > 0);
 }
 
 PG_FUNCTION_INFO_V1(email_cmp);
@@ -188,4 +188,11 @@ Datum email_ndeq(PG_FUNCTION_ARGS)
 	PG_RETURN_BOOL(strcmp(a->domain, b->domain) != 0);
 }
 
+#define Mag(c)	((c)->local*(c)->local + (c)->domain*(c)->domain)
 
+static int email_cmp_internal(Complex * a, Complex * b)
+{
+	char amag = Mag(a), bmag = Mag(b);
+
+	return strcmp(amag, bmag);
+}
