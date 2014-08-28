@@ -14,8 +14,7 @@
 
 PG_MODULE_MAGIC;
 
-typedef struct Email
-{
+typedef struct Email {
    char local;
    char domain;   
 }  Email;
@@ -46,9 +45,9 @@ PG_FUNCTION_INFO_V1(email_in);
 
 Datum email_in(PG_FUNCTION_ARGS)
 {
-	char	   *str = PG_GETARG_CSTRING(0);
-	char		local, domain;
-	Email      *result;
+	char  *str = PG_GETARG_CSTRING(0);
+	char  local, domain;
+	Email *result;
 
 	if (sscanf(str, "%c @ %c", &local, &domain) != 2)
 		ereport(ERROR,
@@ -80,33 +79,42 @@ Datum email_out(PG_FUNCTION_ARGS)
 
 PG_FUNCTION_INFO_V1(email_recv);
 
-Datum email_recv(PG_FUNCTION_ARGS)
-{
-	StringInfo	buf = (StringInfo) PG_GETARG_POINTER(0);
-	Email    *result;
+Datum email_recv(PG_FUNCTION_ARGS) {
+
+	StringInfo buf = (StringInfo) PG_GETARG_POINTER(0);
+	Email *result;
 
 	result = (Email *) palloc(sizeof(Email));
-	result->local = pq_getmsgstring(buf);
-	result->domain = pq_getmsgstring(buf);
+	result->local = *pq_getmsgstring(buf);
+	result->domain = *pq_getmsgstring(buf);
 	PG_RETURN_POINTER(result);
 }
 
 PG_FUNCTION_INFO_V1(email_send);
 
-Datum email_send(PG_FUNCTION_ARGS)
-{
-	Email    *email = (Email *) PG_GETARG_POINTER(0);
+Datum email_send(PG_FUNCTION_ARGS) {
+
+	Email *email = (Email *) PG_GETARG_POINTER(0);
 	StringInfoData buf;
 
 	pq_begintypsend(&buf);
-	pq_sendstring(&buf, email->local);
-	pq_sendstring(&buf, email->domain);
+	pq_sendstring(&buf, &email->local);
+	pq_sendstring(&buf, &email->domain);
 	PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }
 
 //*****************************************************************************
 //* Operator class for defining B-tree index
 //*****************************************************************************
+
+#define Mag(c)	((c)->local*(c)->local + (c)->domain*(c)->domain)
+
+static int email_cmp_internal(Email * a, Email * b)
+{
+	char amag = Mag(a), bmag = Mag(b);
+
+	return strcmp(&amag, &bmag);
+}
 
 PG_FUNCTION_INFO_V1(email_lt);
 
@@ -140,7 +148,7 @@ Datum email_eq(PG_FUNCTION_ARGS)
 
 PG_FUNCTION_INFO_V1(email_neq);
 
-Datum email_eq(PG_FUNCTION_ARGS)
+Datum email_neq(PG_FUNCTION_ARGS)
 {
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
@@ -155,7 +163,7 @@ Datum email_ge(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(email_cmp_internal((a, b) >= 0);
+	PG_RETURN_BOOL(email_cmp_internal(a, b) >= 0);
 }
 
 PG_FUNCTION_INFO_V1(emails_gt);
@@ -168,31 +176,25 @@ Datum email_gt(PG_FUNCTION_ARGS)
 	PG_RETURN_BOOL(email_cmp_internal(a, b) > 0);
 }
 
-PG_FUNCTION_INFO_V1(email_cmp);
+PG_FUNCTION_INFO_V1(email_deq);
 
 Datum email_deq(PG_FUNCTION_ARGS)
 {
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a->domain, b->domain) == 0);
+	PG_RETURN_BOOL(strcmp(&a->domain, &b->domain) == 0);
 }
 
-PG_FUNCTION_INFO_V1(email_cmp);
+PG_FUNCTION_INFO_V1(email_ndeq);
 
 Datum email_ndeq(PG_FUNCTION_ARGS)
 {
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(a->domain, b->domain) != 0);
+	PG_RETURN_BOOL(strcmp(&a->domain, &b->domain) != 0);
 }
 
-#define Mag(c)	((c)->local*(c)->local + (c)->domain*(c)->domain)
 
-static int email_cmp_internal(Complex * a, Complex * b)
-{
-	char amag = Mag(a), bmag = Mag(b);
 
-	return strcmp(amag, bmag);
-}
