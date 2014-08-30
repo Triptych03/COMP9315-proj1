@@ -110,14 +110,22 @@ Datum email_send(PG_FUNCTION_ARGS) {
 //*****************************************************************************
 //* Operator class for defining B-tree index
 //*****************************************************************************
-/**
+
 #define Mag(c)	((c)->local*(c)->local + (c)->domain*(c)->domain)
 
 static int email_cmp_internal(Email *a, Email *b)
 {
-	char amag = Mag(a), bmag = Mag(b);
-
-	return strcmp(&amag, &bmag);
+	//char amag = Mag(a), bmag = Mag(b);
+	
+	if (strcmp(a->domain, b->domain) != 0 ) {
+	    return strcmp(a->domain, b->domain);
+	} else {
+	    if (strcmp(a->local, b->local) != 0 ) {
+	        return strcmp(a->local, b->local);
+	    }
+	}
+    return 0;
+	//return strcmp(&a, &b);
 }
 
 PG_FUNCTION_INFO_V1(email_lt);
@@ -187,7 +195,7 @@ Datum email_deq(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(&a->domain, &b->domain) == 0);
+	PG_RETURN_BOOL(strcmp(a->domain, b->domain) == 0);
 }
 
 PG_FUNCTION_INFO_V1(email_ndeq);
@@ -197,7 +205,7 @@ Datum email_ndeq(PG_FUNCTION_ARGS)
 	Email    *a = (Email *) PG_GETARG_POINTER(0);
 	Email    *b = (Email *) PG_GETARG_POINTER(1);
 
-	PG_RETURN_BOOL(strcmp(&a->domain, &b->domain) != 0);
+	PG_RETURN_BOOL(strcmp(a->domain, b->domain) != 0);
 }
 
 Datum email_cmp(PG_FUNCTION_ARGS)
@@ -214,6 +222,6 @@ Datum email_hval(PG_FUNCTION_ARGS)
 
 	PG_RETURN_INT32(1);
 }
-**/
+
 
 
