@@ -50,11 +50,13 @@ Datum email_in(PG_FUNCTION_ARGS)
 	char  *str = PG_GETARG_CSTRING(0);
 	char  local, domain;
 	Email *result;
+	
+	sscanf(str, "%c @ %c", &local, &domain);
 
-	if (sscanf(str, "%c @ %c", &local, &domain) != 2)
-		ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
-			errmsg("invalid input syntax for Email Address: \"%s\"",
-				str)));
+	//if (sscanf(str, "%c @ %c", &local, &domain) != 2)
+	//	ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+	//		errmsg("invalid input syntax for Email Address: \"%s\"",
+	//			str)));
 
 	result = (Email *) palloc(sizeof(Email));
 	result->local = local;
