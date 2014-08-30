@@ -10,13 +10,13 @@
 #include "postgres.h"
 #include "fmgr.h"
 #include "libpq/pqformat.h"		// needed for send/recv functions
-
+#include <string.h>
 
 PG_MODULE_MAGIC;
 
 typedef struct Email {
-   char local;
-   char domain;   
+   char local[25];
+   char domain[25];   
 }  Email;
 
 //* Since we use V1 function calling convention, all these functions have
@@ -47,20 +47,21 @@ PG_FUNCTION_INFO_V1(email_in);
 
 Datum email_in(PG_FUNCTION_ARGS)
 {
-	char  *str = PG_GETARG_CSTRING(0);
-	char  local, domain;
+	char  *str;
+	char  local[25];
+	char  domain[25];
+    char *token;
 	Email *result;
 	
-	sscanf(str, "%c @ %c", &local, &domain);
-
-	//if (sscanf(str, "%c @ %c", &local, &domain) != 2)
-	//	ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
-	//		errmsg("invalid input syntax for Email Address: \"%s\"",
-	//			str)));
+	str = PG_GETARG_CSTRING(0);
+    token = strtok(str, "@");
+    strcpy(local, token);
+    token = strtok(NULL, "@");
+    strcpy(domain, token);    
 
 	result = (Email *) palloc(sizeof(Email));
-	result->local = local;
-	result->domain = domain;
+	strcpy(result->local, local);
+	strcpy(result->domain, domain);
 	PG_RETURN_POINTER(result);
 }
 
@@ -71,8 +72,8 @@ Datum email_out(PG_FUNCTION_ARGS)
 	Email    *email = (Email *) PG_GETARG_POINTER(0);
 	char	 *result;
 
-	result = (char *) palloc(100);
-	snprintf(result, 100, "%c @ %c", email->local, email->domain);
+	result = (char *) palloc(50);
+	snprintf(result, 50, "%s@%s", email->local, email->domain);
 	PG_RETURN_CSTRING(result);
 }
 
@@ -88,8 +89,8 @@ Datum email_recv(PG_FUNCTION_ARGS) {
 	Email *result;
 
 	result = (Email *) palloc(sizeof(Email));
-	result->local = *pq_getmsgstring(buf);
-	result->domain = *pq_getmsgstring(buf);
+	strcpy(result->local, pq_getmsgstring(buf));
+	strcpy(result->domain, pq_getmsgstring(buf));
 	PG_RETURN_POINTER(result);
 }
 
@@ -101,18 +102,18 @@ Datum email_send(PG_FUNCTION_ARGS) {
 	StringInfoData buf;
 
 	pq_begintypsend(&buf);
-	pq_sendstring(&buf, &email->local);
-	pq_sendstring(&buf, &email->domain);
+	pq_sendstring(&buf, email->local);
+	pq_sendstring(&buf, email->domain);
 	PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }
 
 //*****************************************************************************
 //* Operator class for defining B-tree index
 //*****************************************************************************
-
+/**
 #define Mag(c)	((c)->local*(c)->local + (c)->domain*(c)->domain)
 
-static int email_cmp_internal(Email * a, Email * b)
+static int email_cmp_internal(Email *a, Email *b)
 {
 	char amag = Mag(a), bmag = Mag(b);
 
@@ -213,6 +214,6 @@ Datum email_hval(PG_FUNCTION_ARGS)
 
 	PG_RETURN_INT32(1);
 }
-
+**/
 
 
