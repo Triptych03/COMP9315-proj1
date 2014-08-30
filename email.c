@@ -14,9 +14,11 @@
 
 PG_MODULE_MAGIC;
 
-typedef struct Email {
-   char local[25];
-   char domain[25];   
+typedef struct _email {
+   char domain[128];
+   char local[128];
+   
+      
 }  Email;
 
 //* Since we use V1 function calling convention, all these functions have
@@ -48,20 +50,18 @@ PG_FUNCTION_INFO_V1(email_in);
 Datum email_in(PG_FUNCTION_ARGS)
 {
 	char  *str;
-	char  local[25];
-	char  domain[25];
     char *token;
 	Email *result;
+	result = (Email *) palloc(sizeof(Email));
 	
 	str = PG_GETARG_CSTRING(0);
+	
     token = strtok(str, "@");
-    strcpy(local, token);
+    strcpy(result->local, token);
+    
     token = strtok(NULL, "@");
-    strcpy(domain, token);    
-
-	result = (Email *) palloc(sizeof(Email));
-	strcpy(result->local, local);
-	strcpy(result->domain, domain);
+    strcpy(result->domain, token);    
+    
 	PG_RETURN_POINTER(result);
 }
 
@@ -72,8 +72,8 @@ Datum email_out(PG_FUNCTION_ARGS)
 	Email    *email = (Email *) PG_GETARG_POINTER(0);
 	char	 *result;
 
-	result = (char *) palloc(50);
-	snprintf(result, 50, "%s@%s", email->local, email->domain);
+	result = (char *) palloc(sizeof(Email));
+	sprintf(result, "%s@%s", email->local, email->domain);
 	PG_RETURN_CSTRING(result);
 }
 
@@ -119,10 +119,9 @@ static int email_cmp_internal(Email *a, Email *b)
 	
 	if (strcmp(a->domain, b->domain) != 0 ) {
 	    return strcmp(a->domain, b->domain);
-	} else {
-	    if (strcmp(a->local, b->local) != 0 ) {
-	        return strcmp(a->local, b->local);
-	    }
+	}
+	if (strcmp(a->local, b->local) != 0 ) {
+	    return strcmp(a->local, b->local);
 	}
     return 0;
 	//return strcmp(&a, &b);
