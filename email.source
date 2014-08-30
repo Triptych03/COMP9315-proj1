@@ -181,12 +181,12 @@ CREATE OPERATOR CLASS email_btree_ops
         OPERATOR        1       < ,
         OPERATOR        2       <= ,
         OPERATOR        3       = ,
-	OPERATOR        4       >= ,
+	    OPERATOR        4       >= ,
         OPERATOR        5       > ,
-	-- OPERATOR        6       <> ,
+	    -- OPERATOR        6       <> ,
         -- OPERATOR        7       ~ ,
         -- OPERATOR        8       !~ ;
-	FUNCTION        1       email_cmp(email, email);
+	FUNCTION        1     email_cmp(email, email);
 
 CREATE OPERATOR CLASS email_hash_ops
     DEFAULT FOR TYPE email USING hash AS
@@ -214,25 +214,20 @@ insert into UserSessions(username,loggedIn,loggedOut) values
 create index on UserSessions using hash (username);
 
 select a.username, a.loggedIn, b.loggedIn
-from   UserSessions a, UserSessions b
-where  a.uname = b.uname and a.loggedIn <> b.loggedIn;
-
-select path,count(*)
-from   Users
-group  by path;
+from   UserSessions a, UserSessions b;
 
 -- btree definitions
 
-CREATE INDEX UserSessions_ind ON UserSessions USING btree(a email_ops);
+--CREATE INDEX UserSessions_ind ON UserSessions USING btree(a email_ops);
 
-SELECT * from UserSessions where a = 'abc@test.com';
-SELECT * from UserSessions where a != 'abc@test.com';
-SELECT * from UserSessions where a < 'abc@test.com';
-SELECT * from UserSessions where a <= 'abc@test.com';
-SELECT * from UserSessions where a > 'abc@test.com';
-SELECT * from UserSessions where a >= 'abc@test.com';
-SELECT * from UserSessions where a ~ 'abc@test.com';
-SELECT * from UserSessions where a !~ 'abc@test.com';
+--SELECT * from UserSessions where a = 'abc@test.com';
+--SELECT * from UserSessions where a != 'abc@test.com';
+--SELECT * from UserSessions where a < 'abc@test.com';
+--SELECT * from UserSessions where a <= 'abc@test.com';
+--SELECT * from UserSessions where a > 'abc@test.com';
+--SELECT * from UserSessions where a >= 'abc@test.com';
+--SELECT * from UserSessions where a ~ 'abc@test.com';
+--SELECT * from UserSessions where a !~ 'abc@test.com';
 
 
 -- clean up the test
