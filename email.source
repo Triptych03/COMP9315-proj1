@@ -46,7 +46,7 @@ CREATE FUNCTION email_send(email)
 -- Type creation.
 
 CREATE TYPE email (
-   internallength = 16,
+   internallength = 253,
    input = email_in,
    output = email_out,
    receive = email_recv,
@@ -84,8 +84,7 @@ CREATE FUNCTION email_ndeq(email, email) RETURNS bool
 
 
 CREATE OPERATOR < (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_lt,
    commutator = > ,
    negator = >= ,
@@ -93,8 +92,7 @@ CREATE OPERATOR < (
    join = scalarltjoinsel
 );
 CREATE OPERATOR <= (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_le,
    commutator = >= ,
    negator = > ,
@@ -102,8 +100,7 @@ CREATE OPERATOR <= (
    join = scalarltjoinsel
 );
 CREATE OPERATOR = (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_eq,
    commutator = = ,
    negator = <>,
@@ -113,8 +110,7 @@ CREATE OPERATOR = (
    MERGES
 );
 CREATE OPERATOR <> (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_neq,
    commutator = <> ,
    negator = =,
@@ -124,8 +120,7 @@ CREATE OPERATOR <> (
    MERGES
 );
 CREATE OPERATOR >= (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_ge,
    commutator = <= ,
    negator = < ,
@@ -133,8 +128,7 @@ CREATE OPERATOR >= (
    join = scalargtjoinsel
 );
 CREATE OPERATOR > (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_gt,
    commutator = < ,
    negator = <= ,
@@ -142,8 +136,7 @@ CREATE OPERATOR > (
    join = scalargtjoinsel
 );
 CREATE OPERATOR ~ (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_deq,
    commutator = ~ ,
    negator = !~ ,
@@ -153,8 +146,7 @@ CREATE OPERATOR ~ (
    MERGES
 );
 CREATE OPERATOR !~ (
-   leftarg = email,
-   rightarg = email,
+   leftarg = email, rightarg = email,
    procedure = email_ndeq,
    commutator = !~ ,
    negator = ~ ,
@@ -190,7 +182,7 @@ CREATE OPERATOR CLASS email_btree_ops
 
 CREATE OPERATOR CLASS email_hash_ops
     DEFAULT FOR TYPE email USING hash AS
-        OPERATOR        1       = ,
+    OPERATOR        1       = ,
 	FUNCTION        1       email_hval(email);
 
 
@@ -202,7 +194,7 @@ CREATE TABLE UserSessions (
     loggedOut timeStamp
 );
 
-insert into UserSessions(username,loggedIn,loggedOut) values
+insert into UserSessions(username,loggedIn,loggedOut) values 
 ('jas@cse.unsw.edu.au','2012-07-01 15:45:55','2012-07-01 15:51:20'),
 ('jas@cse.unsw.EDU.AU','2012-07-01 15:50:30','2012-07-01 15:53:15'),
 ('z9987654@unsw.edu.au','2012-07-01 15:51:10','2012-07-01 16:01:05'),
@@ -213,8 +205,7 @@ insert into UserSessions(username,loggedIn,loggedOut) values
 
 create index on UserSessions using hash (username);
 
-select a.username, a.loggedIn, b.loggedIn
-from   UserSessions a, UserSessions b;
+select * from UserSessions;
 
 -- btree definitions
 
@@ -233,6 +224,3 @@ from   UserSessions a, UserSessions b;
 -- clean up the test
 DROP TABLE UserSessions;
 DROP TYPE email CASCADE;
-
-
-
