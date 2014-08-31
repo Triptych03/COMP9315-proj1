@@ -11,14 +11,13 @@
 #include "fmgr.h"
 #include "libpq/pqformat.h"		// needed for send/recv functions
 #include <string.h>
+#include <ctype.h>
 
 PG_MODULE_MAGIC;
 
 typedef struct _email {
-   char domain[128];
    char local[128];
-   
-      
+   char domain[128];
 }  Email;
 
 //* Since we use V1 function calling convention, all these functions have
@@ -49,32 +48,51 @@ PG_FUNCTION_INFO_V1(email_in);
 
 Datum email_in(PG_FUNCTION_ARGS)
 {
-	char  *str;
-    char *token;
-	Email *result;
-	result = (Email *) palloc(sizeof(Email));
-	
-	str = PG_GETARG_CSTRING(0);
-	
+    char  *str;
+    char  *token;
+    
+    int i = 0;
+    int at = 0;
+    char prev;
+    bool invalid  = false;
+    Email *result;
+    result = (Email *) palloc(sizeof(Email));
+    
+    str = PG_GETARG_CSTRING(0);
+    
+    //check valid input
+    prev = str[i];
+    if (str[i] >= '0' && str[i] <= '9') { invalid = true; }
+    for (; str[i]; i++) {
+        str[i] = tolower(str[i]);
+        if (str[i] == '@') { at++; }
+        if (str[i] == '.' && prev == '.') { invalid = true; }
+        prev = str[i];
+    }
+    if (invalid) {
+        ereport( ERROR, (errcode (ERRCODE_INVALID_TEXT_REPRESENTATION),
+                  errmsg ("invalid input syntax for Email: \"%s\"", str)));
+    }
+     
     token = strtok(str, "@");
     strcpy(result->local, token);
-    
+
     token = strtok(NULL, "@");
-    strcpy(result->domain, token);    
+    strcpy(result->domain, token);
     
-	PG_RETURN_POINTER(result);
+    PG_RETURN_POINTER(result);
 }
 
 PG_FUNCTION_INFO_V1(email_out);
 
 Datum email_out(PG_FUNCTION_ARGS)
 {
-	Email    *email = (Email *) PG_GETARG_POINTER(0);
-	char	 *result;
+    Email    *email = (Email *) PG_GETARG_POINTER(0);
+    char     *result;
 
-	result = (char *) palloc(sizeof(Email));
-	sprintf(result, "%s@%s", email->local, email->domain);
-	PG_RETURN_CSTRING(result);
+    result = (char *) palloc(sizeof(Email));
+    snprintf(result, sizeof(Email), "%s@%s", email->local, email->domain);
+    PG_RETURN_CSTRING(result);
 }
 
 //*****************************************************************************
@@ -221,6 +239,3 @@ Datum email_hval(PG_FUNCTION_ARGS)
 
 	PG_RETURN_INT32(1);
 }
-
-
-
