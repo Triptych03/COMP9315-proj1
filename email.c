@@ -48,32 +48,66 @@ PG_FUNCTION_INFO_V1(email_in);
 
 Datum email_in(PG_FUNCTION_ARGS)
 {
-    char  *str;
-    char  *token;
-    
-    int i = 0;
-    int at = 0;
+    char *str;
+    char *token;
+
+    int  i;
+    int  at = 0;
+    int  domainWords = 0;
     char prev;
-    bool invalid  = false;
+    bool domain = false;
+    bool invalid = false;
+
     Email *result;
     result = (Email *) palloc(sizeof(Email));
     
     str = PG_GETARG_CSTRING(0);
     
-    //check valid input
-    prev = str[i];
-    if (str[i] >= '0' && str[i] <= '9') { invalid = true; }
-    for (; str[i]; i++) {
+    //convert to connical form
+    for (i = 0; str[i]; i++) {
         str[i] = tolower(str[i]);
-        if (str[i] == '@') { at++; }
-        if (str[i] == '.' && prev == '.') { invalid = true; }
+    }
+
+    //check valid input
+    prev = str[0];
+    if ( !isalpha(str[0]) ) { invalid = true; }
+    for (i = 0; str[i]; i++) {
+        //printf("%c ", str[i]);
+        //check char is in range [a-z] && [0-9] && '-' && '@' && '.'
+        if ( !(isalpha(str[i]) || isdigit(str[i]) || 
+               str[i] == '-'   || str[i] == '@'   || str[i] == '.') ) {
+            printf ("isalpha = %d, isdigit = %d, is '-' = %d\ninvalid = true\n", 
+                    isalpha(str[i]), isdigit(str[i]), (str[i]=='-'));
+            invalid = true;
+        }
+
+        //check word begins with letter
+        //takes care of empty words (e.g. j..shepherd@funny.email.com)
+        if (prev == '.' && !isalpha(str[i])) { printf("%c isn't [a-z]\n", str[i]); invalid = true; }
+
+        //check word ends with letter or digit
+        if ((str[i] == '.' || str[i] == '@') && 
+            !(isalpha(prev) || isdigit(prev))) { printf("last letter of word (%c) isn't [a-z] || [0-9]\n", prev); invalid = true; }
+        
+        if (str[i] == '@') { 
+             domain = true;
+             if (++at > 1) { printf ("too many @ (%d)", at); invalid = true; }  
+        }
+        //check domain contains at least 2 words
+        if (domain && (prev == '.' || prev == '@')) {
+             domainWords++;
+        }
         prev = str[i];
     }
+
+    if (domainWords < 2) { printf("not enough words in domain of %s (%d)\n", str, domainWords); invalid = true; }
+
     if (invalid) {
         ereport( ERROR, (errcode (ERRCODE_INVALID_TEXT_REPRESENTATION),
                   errmsg ("invalid input syntax for Email: \"%s\"", str)));
     }
-     
+    //printf ("tolower( str )= %s\n", str);
+
     token = strtok(str, "@");
     strcpy(result->local, token);
 
@@ -239,3 +273,6 @@ Datum email_hval(PG_FUNCTION_ARGS)
 
 	PG_RETURN_INT32(1);
 }
+
+
+
