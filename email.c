@@ -38,7 +38,7 @@ Datum	email_deq(PG_FUNCTION_ARGS);
 Datum   email_ndeq(PG_FUNCTION_ARGS);
 Datum	email_cmp(PG_FUNCTION_ARGS);
 Datum   email_hval(PG_FUNCTION_ARGS);
-
+bool    isValidInput(char *str);
 
 //*****************************************************************************
 //* Input/Output functions
@@ -52,12 +52,6 @@ Datum email_in(PG_FUNCTION_ARGS)
     char *token;
 
     int  i;
-    int  at = 0;
-    int  domainWords = 0;
-    char prev;
-    bool domain = false;
-    bool invalid = false;
-
     Email *result;
     result = (Email *) palloc(sizeof(Email));
     
@@ -68,7 +62,29 @@ Datum email_in(PG_FUNCTION_ARGS)
         str[i] = tolower(str[i]);
     }
 
-    //check valid input
+    if ( isValidInput(str) ) {
+        ereport( ERROR, (errcode (ERRCODE_INVALID_TEXT_REPRESENTATION),
+                  errmsg ("invalid input syntax for Email: \"%s\"", str)));
+    }
+    //printf ("tolower( str )= %s\n", str);
+
+    token = strtok(str, "@");
+    strcpy(result->local, token);
+
+    token = strtok(NULL, "@");
+    strcpy(result->domain, token);
+    
+    PG_RETURN_POINTER(result);
+}
+
+bool isValidInput(char *str) {
+    int  i           = 0;
+    int  at          = 0;
+    int  domainWords = 0;
+    char prev        = str[0];
+    bool domain      = false;
+    bool invalid     = false;
+ 
     prev = str[0];
     if ( !isalpha(str[0]) ) { invalid = true; }
     for (i = 0; str[i]; i++) {
@@ -102,19 +118,7 @@ Datum email_in(PG_FUNCTION_ARGS)
 
     if (domainWords < 2) { printf("not enough words in domain of %s (%d)\n", str, domainWords); invalid = true; }
 
-    if (invalid) {
-        ereport( ERROR, (errcode (ERRCODE_INVALID_TEXT_REPRESENTATION),
-                  errmsg ("invalid input syntax for Email: \"%s\"", str)));
-    }
-    //printf ("tolower( str )= %s\n", str);
-
-    token = strtok(str, "@");
-    strcpy(result->local, token);
-
-    token = strtok(NULL, "@");
-    strcpy(result->domain, token);
-    
-    PG_RETURN_POINTER(result);
+  return invalid;
 }
 
 PG_FUNCTION_INFO_V1(email_out);
@@ -273,6 +277,3 @@ Datum email_hval(PG_FUNCTION_ARGS)
 
 	PG_RETURN_INT32(1);
 }
-
-
-
