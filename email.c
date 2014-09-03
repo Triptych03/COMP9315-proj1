@@ -50,7 +50,6 @@ Datum email_in(PG_FUNCTION_ARGS)
 {
     char *str;
     char *token;
-
     int  i;
     Email *result;
     result = (Email *) palloc(sizeof(Email));
@@ -66,8 +65,6 @@ Datum email_in(PG_FUNCTION_ARGS)
         ereport( ERROR, (errcode (ERRCODE_INVALID_TEXT_REPRESENTATION),
                   errmsg ("invalid input syntax for Email: \"%s\"", str)));
     }
-    //printf ("tolower( str )= %s\n", str);
-
     token = strtok(str, "@");
     strcpy(result->local, token);
 
@@ -99,12 +96,14 @@ bool isValidInput(char *str) {
 
         //check word begins with letter
         //takes care of empty words (e.g. j..shepherd@funny.email.com)
-        if (prev == '.' && !isalpha(str[i])) { printf("%c isn't [a-z]\n", str[i]); invalid = true; }
+        if ((prev == '.' || prev == '@') && 
+            !isalpha(str[i])) { printf("%c isn't [a-z]\n", str[i]); invalid = true; }
 
         //check word ends with letter or digit
-        if ((str[i] == '.' || str[i] == '@') && 
+        if ((str[i] == '.' || str[i] == '@' || i == sizeof(str)-1 ) && 
             !(isalpha(prev) || isdigit(prev))) { printf("last letter of word (%c) isn't [a-z] || [0-9]\n", prev); invalid = true; }
-        
+
+        //check only one '@' in str 
         if (str[i] == '@') { 
              domain = true;
              if (++at > 1) { printf ("too many @ (%d)", at); invalid = true; }  
@@ -118,6 +117,8 @@ bool isValidInput(char *str) {
 
     if (domainWords < 2) { printf("not enough words in domain of %s (%d)\n", str, domainWords); invalid = true; }
 
+    //max size of local & domain are each 128 + '@' + NULL
+    if ( sizeof(str) > (128 + 128 + 1 + 1)) { invalid = true; }
   return invalid;
 }
 
@@ -171,9 +172,9 @@ Datum email_send(PG_FUNCTION_ARGS) {
 
 static int email_cmp_internal(Email *a, Email *b)
 {
-	//char amag = Mag(a), bmag = Mag(b);
+    //char amag = Mag(a), bmag = Mag(b);
 	
-	if (strcmp(a->domain, b->domain) != 0 ) {
+    if (strcmp(a->domain, b->domain) != 0 ) {
 	    return strcmp(a->domain, b->domain);
 	}
 	if (strcmp(a->local, b->local) != 0 ) {
