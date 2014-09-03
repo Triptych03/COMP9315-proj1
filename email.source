@@ -46,12 +46,12 @@ CREATE FUNCTION email_send(email)
 -- Type creation.
 
 CREATE TYPE email (
-   internallength = 253,
-   input = email_in,
-   output = email_out,
-   receive = email_recv,
-   send = email_send,
-   alignment = char
+   internallength = 256,
+   input          = email_in,
+   output         = email_out,
+   receive        = email_recv,
+   send           = email_send,
+   alignment      = char
 );
 
 
@@ -84,74 +84,89 @@ CREATE FUNCTION email_ndeq(email, email) RETURNS bool
 
 
 CREATE OPERATOR < (
-   leftarg = email, rightarg = email,
-   procedure = email_lt,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_lt,
    commutator = > ,
-   negator = >= ,
-   restrict = scalarltsel,
-   join = scalarltjoinsel
+   negator    = >= ,
+   restrict   = scalarltsel,
+   join       = scalarltjoinsel
 );
+
 CREATE OPERATOR <= (
-   leftarg = email, rightarg = email,
-   procedure = email_le,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_le,
    commutator = >= ,
-   negator = > ,
-   restrict = scalarltsel,
-   join = scalarltjoinsel
+   negator    = > ,
+   restrict   = scalarltsel,
+   join       = scalarltjoinsel
 );
+
 CREATE OPERATOR = (
-   leftarg = email, rightarg = email,
-   procedure = email_eq,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_eq,
    commutator = = ,
-   negator = <>,
-   restrict = eqsel,
-   join = eqjoinsel,
+   negator    = <>,
+   restrict   = eqsel,
+   join       = eqjoinsel,
    HASHES,
    MERGES
 );
+
 CREATE OPERATOR <> (
-   leftarg = email, rightarg = email,
-   procedure = email_neq,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_neq,
    commutator = <> ,
-   negator = =,
-   restrict = neqsel,
-   join = neqjoinsel,
+   negator    = =,
+   restrict   = neqsel,
+   join       = neqjoinsel,
    HASHES,
    MERGES
 );
+
 CREATE OPERATOR >= (
-   leftarg = email, rightarg = email,
-   procedure = email_ge,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_ge,
    commutator = <= ,
-   negator = < ,
-   restrict = scalargtsel,
-   join = scalargtjoinsel
+   negator    = < ,
+   restrict   = scalargtsel,
+   join       = scalargtjoinsel
 );
+
 CREATE OPERATOR > (
-   leftarg = email, rightarg = email,
-   procedure = email_gt,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_gt,
    commutator = < ,
-   negator = <= ,
-   restrict = scalargtsel,
-   join = scalargtjoinsel
+   negator    = <= ,
+   restrict   = scalargtsel,
+   join       = scalargtjoinsel
 );
+
 CREATE OPERATOR ~ (
-   leftarg = email, rightarg = email,
-   procedure = email_deq,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_deq,
    commutator = ~ ,
-   negator = !~ ,
-   restrict = eqsel,
-   join = eqjoinsel,
+   negator    = !~ ,
+   restrict   = eqsel,
+   join       = eqjoinsel,
    HASHES,
    MERGES
 );
+
 CREATE OPERATOR !~ (
-   leftarg = email, rightarg = email,
-   procedure = email_ndeq,
+   leftarg    = email, 
+   rightarg   = email,
+   procedure  = email_ndeq,
    commutator = !~ ,
-   negator = ~ ,
-   restrict = neqsel,
-   join = neqjoinsel,
+   negator    = ~ ,
+   restrict   = neqsel,
+   join       = neqjoinsel,
    HASHES,
    MERGES
 );
@@ -173,17 +188,17 @@ CREATE OPERATOR CLASS email_btree_ops
         OPERATOR        1       < ,
         OPERATOR        2       <= ,
         OPERATOR        3       = ,
-	    OPERATOR        4       >= ,
+        OPERATOR        4       >= ,
         OPERATOR        5       > ,
-	    -- OPERATOR        6       <> ,
+        -- OPERATOR        6       <> ,
         -- OPERATOR        7       ~ ,
         -- OPERATOR        8       !~ ;
-	FUNCTION        1     email_cmp(email, email);
+	FUNCTION        1       email_cmp(email, email);
 
 CREATE OPERATOR CLASS email_hash_ops
     DEFAULT FOR TYPE email USING hash AS
-    OPERATOR        1       = ,
-	FUNCTION        1       email_hval(email);
+        OPERATOR        1       = ,
+        FUNCTION        1       email_hval(email);
 
 
 -- Test suit
@@ -211,14 +226,14 @@ select * from UserSessions;
 
 --CREATE INDEX UserSessions_ind ON UserSessions USING btree(a email_ops);
 
---SELECT * from UserSessions where a = 'abc@test.com';
---SELECT * from UserSessions where a != 'abc@test.com';
---SELECT * from UserSessions where a < 'abc@test.com';
---SELECT * from UserSessions where a <= 'abc@test.com';
---SELECT * from UserSessions where a > 'abc@test.com';
---SELECT * from UserSessions where a >= 'abc@test.com';
---SELECT * from UserSessions where a ~ 'abc@test.com';
---SELECT * from UserSessions where a !~ 'abc@test.com';
+SELECT * from UserSessions where username = 'abc@test.com';
+SELECT * from UserSessions where username != 'abc@test.com';
+SELECT * from UserSessions where username < 'abc@test.com';
+SELECT * from UserSessions where username <= 'abc@test.com';
+--SELECT * from UserSessions where username > 'abc@test.com';
+SELECT * from UserSessions where username >= 'abc@test.com';
+SELECT * from UserSessions where username ~ 'abc@test.com';
+SELECT * from UserSessions where username !~ 'abc@test.com';
 
 
 -- clean up the test
