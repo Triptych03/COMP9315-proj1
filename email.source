@@ -233,19 +233,40 @@ insert into UserSessionsB(username,loggedIn,loggedOut) values
 
 create index on UserSessionsA using hash (username);
 --CREATE INDEX ON UserSessionsA USING btree(loggedIn);
-
+\echo ''
+\echo 'Testing: select * from UserSessionsA'
 select * from UserSessionsA;
+\echo ''
+\echo 'Testing: select * from UserSessionsB'
 select * from UserSessionsB;
 
+\echo ''
+\echo 'Testing: = eq jas@cse.unsw.edu.au'
 SELECT * from UserSessionsA where username = 'jas@cse.unsw.edu.au';
+\echo ''
+\echo 'Testing: != neq jas@cse.unsw.edu.au'
 SELECT * from UserSessionsA where username != 'jas@cse.unsw.edu.au';
-SELECT * from UserSessionsA where username < 'jas@cse.unsw.edu.au';
-SELECT * from UserSessionsA where username <= 'jas@cse.unsw.edu.au';
---SELECT * from UserSessionsA where username > 'jas@cse.unsw.edu.au';
+\echo ''
+\echo 'Testing: < lt m.mouse@disney.com'
+SELECT * from UserSessionsA where username < 'm.mouse@disney.com';
+\echo ''
+\echo 'Testing: <= le m.mouse@disney.com'
+SELECT * from UserSessionsA where username <= 'm.mouse@disney.com';
+\echo ''
+\echo 'Testing: > gt jas@cse.unsw.edu.au'
+SELECT * from UserSessionsA where username > 'jas@cse.unsw.edu.au';
+\echo ''
+\echo 'Testing: >= ge jas@cse.unsw.edu.au'
 SELECT * from UserSessionsA where username >= 'jas@cse.unsw.edu.au';
+\echo ''
+\echo 'Testing: ~ deq @cse.unsw.edu.au'
 SELECT * from UserSessionsA where username ~ 'jas@cse.unsw.edu.au';
+\echo ''
+\echo 'Testing: !~ ndeq @cse.unsw.edu.au'
 SELECT * from UserSessionsA where username !~ 'jas@cse.unsw.edu.au';
 
+\echo ''
+\echo 'Testing: join'
 SELECT a.username, b.username from UserSessionsA a join UserSessionsB b on a.loggedIn = b.loggedIn;
 
 
