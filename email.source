@@ -190,86 +190,9 @@ CREATE OPERATOR CLASS emailaddress_btree_ops
         OPERATOR        3       =  (emailaddress, emailaddress),
         OPERATOR        4       >= (emailaddress, emailaddress),
         OPERATOR        5       >  (emailaddress, emailaddress),
-        -- OPERATOR        6       <> ,
-        -- OPERATOR        7       ~ ,
-        -- OPERATOR        8       !~ ;
 	FUNCTION        1       email_cmp(emailaddress, emailaddress);
 
 CREATE OPERATOR CLASS emailaddress_hash_ops
     DEFAULT FOR TYPE emailaddress USING hash AS
         OPERATOR        1       = ,
         FUNCTION        1       email_hval(emailaddress);
-
-
--- Test suit
-
-CREATE TABLE UserSessionsA (
-    username emailaddress,
-    loggedIn timeStamp,
-    loggedOut timeStamp
-);
-
-CREATE TABLE UserSessionsB (
-    username emailaddress,
-    loggedIn timeStamp,
-    loggedOut timeStamp
-);
-
-insert into UserSessionsA(username,loggedIn,loggedOut) values 
-('jas@cse.unsw.edu.au','2012-07-01 15:45:55','2012-07-01 15:51:20'),
-('jas@cse.unsw.EDU.AU','2012-07-01 15:50:30','2012-07-01 15:53:15'),
-('z9987654@unsw.edu.au','2012-07-01 15:51:10','2012-07-01 16:01:05'),
-('m.mouse@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
-('a-user@fast-money.com','2012-07-01 15:52:25','2012-07-01 16:10:15');
-
-insert into UserSessionsB(username,loggedIn,loggedOut) values 
-('bas@cse.unsw.edu.au','2012-07-01 15:45:55','2012-07-01 15:51:20'),
-('bas@cse.unsw.EDU.AU','2012-07-01 15:50:40','2012-07-01 15:53:15'),
-('z123456@unsw.edu.au','2012-07-01 15:51:09','2012-07-01 16:01:05'),
-('d.duck@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
-('b-user@fast-money.com','2012-07-01 15:52:30','2012-07-01 16:10:15');
-
-create index on UserSessionsA using hash (username);
-create index on UserSessionsA using btree(loggedIn);
-
-\echo ''
-\echo 'Testing: select * from UserSessionsA'
-select * from UserSessionsA;
-\echo ''
-\echo 'Testing: select * from UserSessionsB'
-select * from UserSessionsB;
-
-\echo ''
-\echo 'Testing: = eq jas@cse.unsw.edu.au'
-SELECT * from UserSessionsA where username = 'jas@cse.unsw.edu.au';
-\echo ''
-\echo 'Testing: != neq jas@cse.unsw.edu.au'
-SELECT * from UserSessionsA where username != 'jas@cse.unsw.edu.au';
-\echo ''
-\echo 'Testing: < lt m.mouse@disney.com'
-SELECT * from UserSessionsA where username < 'm.mouse@disney.com';
-\echo ''
-\echo 'Testing: <= le m.mouse@disney.com'
-SELECT * from UserSessionsA where username <= 'm.mouse@disney.com';
-\echo ''
-\echo 'Testing: > gt jas@cse.unsw.edu.au'
-SELECT * from UserSessionsA where username > 'jas@cse.unsw.edu.au';
-\echo ''
-\echo 'Testing: >= ge jas@cse.unsw.edu.au'
-SELECT * from UserSessionsA where username >= 'jas@cse.unsw.edu.au';
-\echo ''
-\echo 'Testing: ~ deq @cse.unsw.edu.au'
-SELECT * from UserSessionsA where username ~ 'jas@cse.unsw.edu.au';
-\echo ''
-\echo 'Testing: !~ ndeq @cse.unsw.edu.au'
-SELECT * from UserSessionsA where username !~ 'jas@cse.unsw.edu.au';
-
-\echo ''
-\echo 'Testing: join'
-SELECT a.username, b.username from UserSessionsA a join UserSessionsB b on a.loggedIn = b.loggedIn;
-
-
--- clean up the test
-DROP TABLE UserSessionsA;
-DROP TABLE UserSessionsB;
-DROP TYPE emailaddress CASCADE;
