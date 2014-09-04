@@ -127,7 +127,7 @@ PG_FUNCTION_INFO_V1(email_out);
 Datum email_out(PG_FUNCTION_ARGS)
 {
     EmailAddress    *email = (EmailAddress *) PG_GETARG_POINTER(0);
-    char            *result;
+    char     *result;
 
     result = (char *) palloc(sizeof(EmailAddress));
     snprintf(result, sizeof(EmailAddress), "%s@%s", email->local, email->domain);
@@ -274,7 +274,5 @@ Datum email_cmp(PG_FUNCTION_ARGS)
 
 Datum email_hval(PG_FUNCTION_ARGS)
 {
-	//EmailAddress    *a = (EmailAddress *) PG_GETARG_POINTER(0);
-
 	PG_RETURN_INT32(1);
 }
