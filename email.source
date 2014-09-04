@@ -203,39 +203,53 @@ CREATE OPERATOR CLASS email_hash_ops
 
 -- Test suit
 
-CREATE TABLE UserSessions (
+CREATE TABLE UserSessionsA (
     username email,
     loggedIn timeStamp,
     loggedOut timeStamp
 );
 
-insert into UserSessions(username,loggedIn,loggedOut) values 
+CREATE TABLE UserSessionsB (
+    username email,
+    loggedIn timeStamp,
+    loggedOut timeStamp
+);
+
+insert into UserSessionsA(username,loggedIn,loggedOut) values 
 ('jas@cse.unsw.edu.au','2012-07-01 15:45:55','2012-07-01 15:51:20'),
 ('jas@cse.unsw.EDU.AU','2012-07-01 15:50:30','2012-07-01 15:53:15'),
 ('z9987654@unsw.edu.au','2012-07-01 15:51:10','2012-07-01 16:01:05'),
 ('m.mouse@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
 ('a-user@fast-money.com','2012-07-01 15:52:25','2012-07-01 16:10:15');
 
+insert into UserSessionsB(username,loggedIn,loggedOut) values 
+('bas@cse.unsw.edu.au','2012-07-01 15:45:55','2012-07-01 15:51:20'),
+('bas@cse.unsw.EDU.AU','2012-07-01 15:50:40','2012-07-01 15:53:15'),
+('z123456@unsw.edu.au','2012-07-01 15:51:09','2012-07-01 16:01:05'),
+('d.duck@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
+('b-user@fast-money.com','2012-07-01 15:52:30','2012-07-01 16:10:15');
+
 -- hash definitions
 
-create index on UserSessions using hash (username);
+create index on UserSessionsA using hash (username);
+--CREATE INDEX ON UserSessionsA USING btree(loggedIn);
 
-select * from UserSessions;
+select * from UserSessionsA;
+select * from UserSessionsB;
 
--- btree definitions
+SELECT * from UserSessionsA where username = 'jas@cse.unsw.edu.au';
+SELECT * from UserSessionsA where username != 'jas@cse.unsw.edu.au';
+SELECT * from UserSessionsA where username < 'jas@cse.unsw.edu.au';
+SELECT * from UserSessionsA where username <= 'jas@cse.unsw.edu.au';
+--SELECT * from UserSessionsA where username > 'jas@cse.unsw.edu.au';
+SELECT * from UserSessionsA where username >= 'jas@cse.unsw.edu.au';
+SELECT * from UserSessionsA where username ~ 'jas@cse.unsw.edu.au';
+SELECT * from UserSessionsA where username !~ 'jas@cse.unsw.edu.au';
 
---CREATE INDEX UserSessions_ind ON UserSessions USING btree(a email_ops);
-
-SELECT * from UserSessions where username = 'abc@test.com';
-SELECT * from UserSessions where username != 'abc@test.com';
-SELECT * from UserSessions where username < 'abc@test.com';
-SELECT * from UserSessions where username <= 'abc@test.com';
-SELECT * from UserSessions where username > 'abc@test.com';
-SELECT * from UserSessions where username >= 'abc@test.com';
-SELECT * from UserSessions where username ~ 'abc@test.com';
-SELECT * from UserSessions where username !~ 'abc@test.com';
+SELECT a.username, b.username from UserSessionsA a join UserSessionsB b on a.loggedIn = b.loggedIn;
 
 
 -- clean up the test
-DROP TABLE UserSessions;
+DROP TABLE UserSessionsA;
+DROP TABLE UserSessionsB;
 DROP TYPE email CASCADE;
