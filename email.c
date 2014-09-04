@@ -234,7 +234,7 @@ Datum email_ge(PG_FUNCTION_ARGS)
 	PG_RETURN_BOOL(email_cmp_internal(a, b) >= 0);
 }
 
-PG_FUNCTION_INFO_V1(emails_gt);
+PG_FUNCTION_INFO_V1(email_gt);
 
 Datum email_gt(PG_FUNCTION_ARGS)
 {
@@ -243,6 +243,21 @@ Datum email_gt(PG_FUNCTION_ARGS)
 
 	PG_RETURN_BOOL(email_cmp_internal(a, b) > 0);
 }
+/*       if (a == NULL) {
+             printf ("a is NULL\n");
+        } else {
+             printf ("a->local = %s, a->domain = %s\n", a->local, a->domain);
+        }
+	
+        if (b == NULL) {
+             printf ("b is NULL\n");
+        } else {
+             printf ("b->local = %s, b->domain = %s\n", b->local, b->domain);
+        }
+
+        printf ("return value = %d email_cmp_internal(a, b) > 0", (email_cmp_internal(a, b) > 0));
+*/
+
 
 PG_FUNCTION_INFO_V1(email_deq);
 
