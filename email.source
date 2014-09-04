@@ -185,11 +185,11 @@ CREATE FUNCTION email_hval(email) RETURNS int4
 
 CREATE OPERATOR CLASS email_btree_ops
     DEFAULT FOR TYPE email USING btree AS
-        OPERATOR        1       < ,
-        OPERATOR        2       <= ,
-        OPERATOR        3       = ,
-        OPERATOR        4       >= ,
-        OPERATOR        5       > ,
+        OPERATOR        1       <  (email, email),
+        OPERATOR        2       <= (email, email),
+        OPERATOR        3       =  (email, email),
+        OPERATOR        4       >= (email, email),
+        OPERATOR        5       >  (email, email),
         -- OPERATOR        6       <> ,
         -- OPERATOR        7       ~ ,
         -- OPERATOR        8       !~ ;
@@ -230,7 +230,7 @@ SELECT * from UserSessions where username = 'abc@test.com';
 SELECT * from UserSessions where username != 'abc@test.com';
 SELECT * from UserSessions where username < 'abc@test.com';
 SELECT * from UserSessions where username <= 'abc@test.com';
---SELECT * from UserSessions where username > 'abc@test.com';
+SELECT * from UserSessions where username > 'abc@test.com';
 SELECT * from UserSessions where username >= 'abc@test.com';
 SELECT * from UserSessions where username ~ 'abc@test.com';
 SELECT * from UserSessions where username !~ 'abc@test.com';
