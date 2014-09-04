@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------
 --
--- emailaddress.sql
+-- email.sql
 --
 -- COMP9315 Database Systems Imp 
 -- Stuart Aitken, Gina Jordanova
@@ -10,7 +10,7 @@
 --
 ---------------------------------------------------------------------------
 
--- the input function 'emailaddress_in' takes the textual representation and
+-- the input function 'email_in' takes the textual representation and
 -- converts it into the internal representation.
 
 CREATE FUNCTION email_in(cstring)
@@ -18,7 +18,7 @@ CREATE FUNCTION email_in(cstring)
    AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the output function 'emailaddress_out' takes the internal representation and
+-- the output function 'email_out' takes the internal representation and
 -- converts it into the textual representation.
 
 CREATE FUNCTION email_out(emailaddress)
@@ -26,7 +26,7 @@ CREATE FUNCTION email_out(emailaddress)
    AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the binary input function 'emailaddress_recv' takes a StringInfo buffer
+-- the binary input function 'email_recv' takes a StringInfo buffer
 -- and turns its contents into the internal representation.
 
 CREATE FUNCTION email_recv(internal)
@@ -34,7 +34,7 @@ CREATE FUNCTION email_recv(internal)
    AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the binary output function 'emailaddress_send' takes the internal representation
+-- the binary output function 'email_send' takes the internal representation
 -- and converts it into a (hopefully) platform-independent bytea string.
 
 CREATE FUNCTION email_send(emailaddress)
@@ -229,10 +229,9 @@ insert into UserSessionsB(username,loggedIn,loggedOut) values
 ('d.duck@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
 ('b-user@fast-money.com','2012-07-01 15:52:30','2012-07-01 16:10:15');
 
--- hash definitions
-
 create index on UserSessionsA using hash (username);
---CREATE INDEX ON UserSessionsA USING btree(loggedIn);
+create index on UserSessionsA using btree(loggedIn);
+
 \echo ''
 \echo 'Testing: select * from UserSessionsA'
 select * from UserSessionsA;
