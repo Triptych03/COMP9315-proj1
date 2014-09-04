@@ -1,43 +1,43 @@
 ---------------------------------------------------------------------------
 --
--- email.sql
+-- emailaddress.sql
 --
 -- COMP9315 Database Systems Imp 
 -- Stuart Aitken, Gina Jordanova
 -- Assignment 1 Adding an Email Data Type to PostgreSQL
 --
--- src/tutorial/email.source
+-- src/tutorial/emailaddress.source
 --
 ---------------------------------------------------------------------------
 
--- the input function 'email_in' takes the textual representation and
+-- the input function 'emailaddress_in' takes the textual representation and
 -- converts it into the internal representation.
 
 CREATE FUNCTION email_in(cstring)
-   RETURNS EmailAddress
+   RETURNS emailaddress
    AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the output function 'email_out' takes the internal representation and
+-- the output function 'emailaddress_out' takes the internal representation and
 -- converts it into the textual representation.
 
-CREATE FUNCTION email_out(EmailAddress)
+CREATE FUNCTION email_out(emailaddress)
    RETURNS cstring
    AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the binary input function 'email_recv' takes a StringInfo buffer
+-- the binary input function 'emailaddress_recv' takes a StringInfo buffer
 -- and turns its contents into the internal representation.
 
 CREATE FUNCTION email_recv(internal)
-   RETURNS EmailAddress
+   RETURNS emailaddress
    AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
 
--- the binary output function 'email_send' takes the internal representation
+-- the binary output function 'emailaddress_send' takes the internal representation
 -- and converts it into a (hopefully) platform-independent bytea string.
 
-CREATE FUNCTION email_send(EmailAddress)
+CREATE FUNCTION email_send(emailaddress)
    RETURNS bytea
    AS '_OBJWD_/email'
    LANGUAGE C IMMUTABLE STRICT;
@@ -45,7 +45,7 @@ CREATE FUNCTION email_send(EmailAddress)
 
 -- Type creation.
 
-CREATE TYPE EmailAddress (
+CREATE TYPE emailaddress (
    internallength = 256,
    input          = email_in,
    output         = email_out,
@@ -57,35 +57,35 @@ CREATE TYPE EmailAddress (
 
 -- define the required operators
 
-CREATE FUNCTION email_lt(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_lt(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_le(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_le(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_eq(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_eq(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_neq(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_neq(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_gt(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_gt(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_ge(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_ge(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_deq(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_deq(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
    
-CREATE FUNCTION email_ndeq(EmailAddress, EmailAddress) RETURNS bool
+CREATE FUNCTION email_ndeq(emailaddress, emailaddress) RETURNS bool
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
 
 
 
 CREATE OPERATOR < (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_lt,
    commutator = > ,
    negator    = >= ,
@@ -94,8 +94,8 @@ CREATE OPERATOR < (
 );
 
 CREATE OPERATOR <= (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_le,
    commutator = >= ,
    negator    = > ,
@@ -104,8 +104,8 @@ CREATE OPERATOR <= (
 );
 
 CREATE OPERATOR = (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_eq,
    commutator = = ,
    negator    = <>,
@@ -116,8 +116,8 @@ CREATE OPERATOR = (
 );
 
 CREATE OPERATOR <> (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_neq,
    commutator = <> ,
    negator    = =,
@@ -128,8 +128,8 @@ CREATE OPERATOR <> (
 );
 
 CREATE OPERATOR >= (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_ge,
    commutator = <= ,
    negator    = < ,
@@ -138,8 +138,8 @@ CREATE OPERATOR >= (
 );
 
 CREATE OPERATOR > (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_gt,
    commutator = < ,
    negator    = <= ,
@@ -148,8 +148,8 @@ CREATE OPERATOR > (
 );
 
 CREATE OPERATOR ~ (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_deq,
    commutator = ~ ,
    negator    = !~ ,
@@ -160,8 +160,8 @@ CREATE OPERATOR ~ (
 );
 
 CREATE OPERATOR !~ (
-   leftarg    = EmailAddress, 
-   rightarg   = EmailAddress,
+   leftarg    = emailaddress, 
+   rightarg   = emailaddress,
    procedure  = email_ndeq,
    commutator = !~ ,
    negator    = ~ ,
@@ -174,40 +174,43 @@ CREATE OPERATOR !~ (
 
 -- create the support function
 
-CREATE FUNCTION email_cmp(EmailAddress, EmailAddress) RETURNS int4
+CREATE FUNCTION email_cmp(emailaddress, emailaddress) RETURNS int4
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
 
-CREATE FUNCTION email_hval(EmailAddress) RETURNS int4
+CREATE FUNCTION email_hval(emailaddress) RETURNS int4
    AS '_OBJWD_/email' LANGUAGE C IMMUTABLE STRICT;
 
 
 -- make the operator class
 
-CREATE OPERATOR CLASS email_btree_ops
-    DEFAULT FOR TYPE EmailAddress USING btree AS
-        OPERATOR        1       <  (EmailAddress, EmailAddress),
-        OPERATOR        2       <= (EmailAddress, EmailAddress),
-        OPERATOR        3       =  (EmailAddress, EmailAddress),
-        OPERATOR        4       >= (EmailAddress, EmailAddress),
-        OPERATOR        5       >  (EmailAddress, EmailAddress),
-	    FUNCTION        1       email_cmp(EmailAddress, EmailAddress);
+CREATE OPERATOR CLASS emailaddress_btree_ops
+    DEFAULT FOR TYPE emailaddress USING btree AS
+        OPERATOR        1       <  (emailaddress, emailaddress),
+        OPERATOR        2       <= (emailaddress, emailaddress),
+        OPERATOR        3       =  (emailaddress, emailaddress),
+        OPERATOR        4       >= (emailaddress, emailaddress),
+        OPERATOR        5       >  (emailaddress, emailaddress),
+        -- OPERATOR        6       <> ,
+        -- OPERATOR        7       ~ ,
+        -- OPERATOR        8       !~ ;
+	FUNCTION        1       email_cmp(emailaddress, emailaddress);
 
-CREATE OPERATOR CLASS email_hash_ops
-    DEFAULT FOR TYPE EmailAddress USING hash AS
+CREATE OPERATOR CLASS emailaddress_hash_ops
+    DEFAULT FOR TYPE emailaddress USING hash AS
         OPERATOR        1       = ,
-        FUNCTION        1       email_hval(EmailAddress);
+        FUNCTION        1       email_hval(emailaddress);
 
 
 -- Test suit
 
 CREATE TABLE UserSessionsA (
-    username EmailAddress,
+    username emailaddress,
     loggedIn timeStamp,
     loggedOut timeStamp
 );
 
 CREATE TABLE UserSessionsB (
-    username EmailAddress,
+    username emailaddress,
     loggedIn timeStamp,
     loggedOut timeStamp
 );
@@ -226,9 +229,10 @@ insert into UserSessionsB(username,loggedIn,loggedOut) values
 ('d.duck@disney.com','2012-07-01 15:51:11','2012-07-01 16:01:06'),
 ('b-user@fast-money.com','2012-07-01 15:52:30','2012-07-01 16:10:15');
 
-create index on UserSessionsA using hash (username);
-CREATE INDEX ON UserSessionsA USING btree(loggedIn);
+-- hash definitions
 
+create index on UserSessionsA using hash (username);
+--CREATE INDEX ON UserSessionsA USING btree(loggedIn);
 \echo ''
 \echo 'Testing: select * from UserSessionsA'
 select * from UserSessionsA;
@@ -269,4 +273,4 @@ SELECT a.username, b.username from UserSessionsA a join UserSessionsB b on a.log
 -- clean up the test
 DROP TABLE UserSessionsA;
 DROP TABLE UserSessionsB;
-DROP TYPE EmailAddress CASCADE;
+DROP TYPE emailaddress CASCADE;
